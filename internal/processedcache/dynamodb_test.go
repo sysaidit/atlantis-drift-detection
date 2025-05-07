@@ -2,9 +2,10 @@ package processedcache
 
 import (
 	"context"
-	"github.com/cresta/atlantis-drift-detection/internal/testhelper"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/sysaidit/atlantis-drift-detection/internal/testhelper"
 )
 
 func makeTestClient(t *testing.T) *DynamoDB {

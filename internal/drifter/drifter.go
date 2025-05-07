@@ -4,22 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cresta/atlantis-drift-detection/internal/atlantis"
-	"github.com/cresta/atlantis-drift-detection/internal/atlantisgithub"
-	"github.com/cresta/atlantis-drift-detection/internal/notification"
-	"github.com/cresta/atlantis-drift-detection/internal/processedcache"
-	"github.com/cresta/atlantis-drift-detection/internal/terraform"
-	"github.com/cresta/gogit"
-	"github.com/cresta/gogithub"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 	"os"
 	"time"
+
+	"github.com/cresta/gogit"
+	"github.com/cresta/gogithub"
+	"github.com/sysaidit/atlantis-drift-detection/internal/atlantis"
+	"github.com/sysaidit/atlantis-drift-detection/internal/atlantisgithub"
+	"github.com/sysaidit/atlantis-drift-detection/internal/notification"
+	"github.com/sysaidit/atlantis-drift-detection/internal/processedcache"
+	"github.com/sysaidit/atlantis-drift-detection/internal/terraform"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type Drifter struct {
 	Logger             *zap.Logger
 	Repo               string
+	Branch             string
 	Cloner             *gogit.Cloner
 	GithubClient       gogithub.GitHub
 	Terraform          *terraform.Client
@@ -144,7 +146,7 @@ func (d *Drifter) FindDriftedWorkspaces(ctx context.Context, ws atlantis.Directo
 
 				pr, err := d.AtlantisClient.PlanSummary(ctx, &atlantis.PlanSummaryRequest{
 					Repo:      d.Repo,
-					Ref:       "master",
+					Ref:       d.Branch,
 					Type:      "Github",
 					Dir:       dir,
 					Workspace: workspace,

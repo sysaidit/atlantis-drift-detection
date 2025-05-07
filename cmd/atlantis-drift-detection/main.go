@@ -7,23 +7,24 @@ import (
 	"os"
 	"time"
 
-	"github.com/cresta/atlantis-drift-detection/internal/atlantis"
-	"github.com/cresta/atlantis-drift-detection/internal/drifter"
-	"github.com/cresta/atlantis-drift-detection/internal/notification"
-	"github.com/cresta/atlantis-drift-detection/internal/processedcache"
-	"github.com/cresta/atlantis-drift-detection/internal/terraform"
 	"github.com/cresta/gogit"
 	"github.com/cresta/gogithub"
 	"github.com/joho/godotenv"
+	"github.com/sysaidit/atlantis-drift-detection/internal/atlantis"
+	"github.com/sysaidit/atlantis-drift-detection/internal/drifter"
+	"github.com/sysaidit/atlantis-drift-detection/internal/notification"
+	"github.com/sysaidit/atlantis-drift-detection/internal/processedcache"
+	"github.com/sysaidit/atlantis-drift-detection/internal/terraform"
 
 	// Empty import allows pinning to version atlantis uses
+	"github.com/joeshaw/envdecode"
 	_ "github.com/nlopes/slack"
 	"go.uber.org/zap"
 )
-import "github.com/joeshaw/envdecode"
 
 type config struct {
 	Repo               string        `env:"REPO,required"`
+	Branch             string        `env:"BRANCH,required"`
 	AtlantisHostname   string        `env:"ATLANTIS_HOST,required"`
 	AtlantisToken      string        `env:"ATLANTIS_TOKEN,required"`
 	DirectoryWhitelist []string      `env:"DIRECTORY_WHITELIST"`
@@ -130,6 +131,7 @@ func main() {
 		DirectoryWhitelist: cfg.DirectoryWhitelist,
 		Logger:             logger.With(zap.String("drifter", "true")),
 		Repo:               cfg.Repo,
+		Branch:             cfg.Branch,
 		AtlantisClient: &atlantis.Client{
 			AtlantisHostname: cfg.AtlantisHostname,
 			Token:            cfg.AtlantisToken,

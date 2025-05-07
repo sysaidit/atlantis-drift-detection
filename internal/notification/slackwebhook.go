@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type SlackWebhook struct {
@@ -63,7 +64,16 @@ func (s *SlackWebhook) MissingWorkspaceInRemote(ctx context.Context, dir string,
 }
 
 func (s *SlackWebhook) PlanDrift(ctx context.Context, dir string, workspace string) error {
-	return s.sendSlackMessage(ctx, fmt.Sprintf("Plan Drift workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
+	gh_repo := os.Getenv("GITHUB_REPOSITORY")
+	gh_repo_url := fmt.Sprintf("%s/%s", os.Getenv("GITHUB_SERVER_URL"), gh_repo)
+	gh_action_id := os.Getenv("GITHUB_RUN_ID")
+	gh_action_url := fmt.Sprintf("%s/actions/run/%s", gh_repo_url, gh_action_id)
+
+	msg := `Terraform Drift in <%s|%s> detected by action <%s|%s>:
+	Project: %s Workspace: %s
+	`
+	slackMsg := fmt.Sprintf(msg, gh_repo_url, gh_repo, gh_action_url, gh_action_id, dir, workspace)
+	return s.sendSlackMessage(ctx, fmt.Sprintf(slackMsg, dir, workspace))
 }
 
 var _ Notification = &SlackWebhook{}

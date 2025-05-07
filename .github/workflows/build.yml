@@ -1,14 +1,14 @@
 name: Build and test code
 
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - master
-      - main
-  pull_request:
-
+  workflow_dispatch:
+  # push:
+  #   tags:
+  #     - v*
+  #   branches:
+  #     - master
+  #     - main
+  # pull_request:
 
 jobs:
   build:
@@ -58,12 +58,13 @@ jobs:
             type=ref,event=pr
             type=semver,pattern=v{{major}},enable=${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
           images: |
-            ghcr.io/cresta/atlantis-drift-detection
+            ghcr.io/sysaidit/atlantis-drift-detection
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           # Push only if tag
-          push: ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
+          # push: ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
+          push: true
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

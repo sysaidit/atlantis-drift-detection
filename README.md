@@ -1,5 +1,6 @@
 # atlantis-drift-detection
 Detect terraform drift in atlantis
+cloned from https://github.com/cresta/atlantis-drift-detection
 
 # What it does
 

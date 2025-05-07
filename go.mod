@@ -1,4 +1,4 @@
-module github.com/cresta/atlantis-drift-detection
+module github.com/sysaidit/atlantis-drift-detection
 
 go 1.24.1
 

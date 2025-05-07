@@ -2,10 +2,11 @@ package notification
 
 import (
 	"context"
-	"github.com/cresta/atlantis-drift-detection/internal/testhelper"
-	"github.com/cresta/gogithub"
-	"go.uber.org/zap/zaptest"
 	"testing"
+
+	"github.com/cresta/gogithub"
+	"github.com/sysaidit/atlantis-drift-detection/internal/testhelper"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestNewWorkflow(t *testing.T) {

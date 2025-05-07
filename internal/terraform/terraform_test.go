@@ -2,12 +2,13 @@ package terraform
 
 import (
 	"context"
-	"github.com/cresta/atlantis-drift-detection/internal/testhelper"
-	"github.com/cresta/pipe"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/zap/zaptest"
 	"path/filepath"
 	"testing"
+
+	"github.com/cresta/pipe"
+	"github.com/stretchr/testify/require"
+	"github.com/sysaidit/atlantis-drift-detection/internal/testhelper"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestClient_Init(t *testing.T) {
