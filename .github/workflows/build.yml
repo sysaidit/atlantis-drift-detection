@@ -45,9 +45,12 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          # registry: ghcr.io
+          # username: ${{ github.actor }}
+          # password: ${{ secrets.GITHUB_TOKEN }}
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -58,7 +61,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern=v{{major}},enable=${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
           images: |
-            ghcr.io/sysaidit/atlantis-drift-detection
+            docker.io/admiralgroup/atlantis-drift-detection
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
