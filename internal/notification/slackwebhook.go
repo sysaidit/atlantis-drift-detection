@@ -55,25 +55,34 @@ func (s *SlackWebhook) sendSlackMessage(ctx context.Context, msg string) error {
 	return nil
 }
 
-func (s *SlackWebhook) ExtraWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
-	return s.sendSlackMessage(ctx, fmt.Sprintf("Extra workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
-}
-
-func (s *SlackWebhook) MissingWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
-	return s.sendSlackMessage(ctx, fmt.Sprintf("Missing workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
-}
-
-func (s *SlackWebhook) PlanDrift(ctx context.Context, dir string, workspace string) error {
+func formatRepoDirWorkspaceMsg(msgContext string, dir string, workspace string) string {
 	gh_repo := os.Getenv("GITHUB_REPOSITORY")
 	gh_repo_url := fmt.Sprintf("%s/%s", os.Getenv("GITHUB_SERVER_URL"), gh_repo)
 	gh_action_id := os.Getenv("GITHUB_RUN_ID")
-	gh_action_url := fmt.Sprintf("%s/actions/run/%s", gh_repo_url, gh_action_id)
+	gh_action_url := fmt.Sprintf("%s/actions/runs/%s", gh_repo_url, gh_action_id)
 
-	msg := `Terraform Drift in <%s|%s> detected by action <%s|%s>:
-	Project: %s Workspace: %s
+	msg := `%s in <%s|%s> detected by action <%s|%s>:
+	Directory: %s Workspace: %s
 	`
-	slackMsg := fmt.Sprintf(msg, gh_repo_url, gh_repo, gh_action_url, gh_action_id, dir, workspace)
-	return s.sendSlackMessage(ctx, fmt.Sprintf(slackMsg, dir, workspace))
+	slackMsg := fmt.Sprintf(msg, msgContext, gh_repo_url, gh_repo, gh_action_url, gh_action_id, dir, workspace)
+	return slackMsg
+}
+
+func (s *SlackWebhook) ExtraWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
+	//return s.sendSlackMessage(ctx, fmt.Sprintf("Extra workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
+	slackMsg := formatRepoDirWorkspaceMsg("Extra workspace", dir, workspace)
+	return s.sendSlackMessage(ctx, slackMsg)
+}
+
+func (s *SlackWebhook) MissingWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
+	//return s.sendSlackMessage(ctx, fmt.Sprintf("Missing workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
+	slackMsg := formatRepoDirWorkspaceMsg("Missing workspace", dir, workspace)
+	return s.sendSlackMessage(ctx, slackMsg)
+}
+
+func (s *SlackWebhook) PlanDrift(ctx context.Context, dir string, workspace string) error {
+	slackMsg := formatRepoDirWorkspaceMsg("Terraform Drift", dir, workspace)
+	return s.sendSlackMessage(ctx, slackMsg)
 }
 
 var _ Notification = &SlackWebhook{}
