@@ -123,7 +123,7 @@ func (d *Drifter) FindDriftedWorkspaces(ctx context.Context, ws atlantis.Directo
 				return nil
 			}
 			workspaces := ws[dir]
-			d.Logger.Info("Checking for drifted workspaces", zap.String("dir", dir))
+			d.Logger.Info("Checking for drifted workspaces", zap.String("dir", dir), zap.Strings("workspaces", workspaces))
 			for _, workspace := range workspaces {
 				cacheKey := &processedcache.ConsiderDriftChecked{
 					Dir:       dir,
@@ -154,7 +154,7 @@ func (d *Drifter) FindDriftedWorkspaces(ctx context.Context, ws atlantis.Directo
 				if err != nil {
 					var tmp atlantis.TemporaryError
 					if errors.As(err, &tmp) && tmp.Temporary() {
-						d.Logger.Warn("Temporary error.  Will try again later.", zap.Error(err))
+						d.Logger.Warn("Temporary ERROR in call AtlantisClient.PlanSummary", zap.String("dir", dir), zap.String("workspace", workspace), zap.Error(err))
 						continue
 					}
 					return fmt.Errorf("failed to get plan summary for (%s#%s): %w", dir, workspace, err)
@@ -167,13 +167,16 @@ func (d *Drifter) FindDriftedWorkspaces(ctx context.Context, ws atlantis.Directo
 					return fmt.Errorf("failed to store cache value for %s/%s: %w", dir, workspace, err)
 				}
 				if pr.IsLocked() {
-					d.Logger.Info("Plan is locked, skipping drift check", zap.String("dir", dir))
+					d.Logger.Info("Plan is locked, skipping drift check", zap.String("dir", dir), zap.String("workspace", workspace))
 					continue
 				}
 				if pr.HasChanges() {
 					if err := d.Notification.PlanDrift(ctx, dir, workspace); err != nil {
+						d.Logger.Info("DRIFT Found", zap.String("dir", dir), zap.String("workspace", workspace))
 						return fmt.Errorf("failed to notify of plan drift in %s: %w", dir, err)
 					}
+				} else {
+					d.Logger.Info("No Changes for", zap.String("dir", dir), zap.String("workspace", workspace))
 				}
 			}
 			return nil
@@ -227,9 +230,10 @@ func (d *Drifter) FindExtraWorkspaces(ctx context.Context, ws atlantis.Directori
 			}
 			for _, w := range remoteWorkspaces {
 				if !contains(expectedWorkspaces, w) {
-					if err := d.Notification.ExtraWorkspaceInRemote(ctx, dir, w); err != nil {
-						return fmt.Errorf("failed to notify of extra workspace %s in %s: %w", w, dir, err)
-					}
+					d.Logger.Warn("Remote workspace is not managed by Atlantis", zap.String("dir", dir), zap.String("workspace", w))
+					// if err := d.Notification.ExtraWorkspaceInRemote(ctx, dir, w); err != nil {
+					// 	return fmt.Errorf("failed to notify of extra workspace %s in %s: %w", w, dir, err)
+					// }
 				}
 			}
 			if err := d.ResultCache.StoreRemoteWorkspaces(ctx, cacheKey, &processedcache.WorkspacesCheckedValue{

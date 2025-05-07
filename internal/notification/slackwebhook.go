@@ -70,13 +70,13 @@ func formatRepoDirWorkspaceMsg(msgContext string, dir string, workspace string) 
 
 func (s *SlackWebhook) ExtraWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
 	//return s.sendSlackMessage(ctx, fmt.Sprintf("Extra workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
-	slackMsg := formatRepoDirWorkspaceMsg("Extra workspace", dir, workspace)
+	slackMsg := formatRepoDirWorkspaceMsg("Remote workspace is not managed by Atlantis", dir, workspace)
 	return s.sendSlackMessage(ctx, slackMsg)
 }
 
 func (s *SlackWebhook) MissingWorkspaceInRemote(ctx context.Context, dir string, workspace string) error {
 	//return s.sendSlackMessage(ctx, fmt.Sprintf("Missing workspace in remote\nDirectory: %s\nWorkspace: %s", dir, workspace))
-	slackMsg := formatRepoDirWorkspaceMsg("Missing workspace", dir, workspace)
+	slackMsg := formatRepoDirWorkspaceMsg("Workspace is in atlantis.yaml but missing in remote", dir, workspace)
 	return s.sendSlackMessage(ctx, slackMsg)
 }
 
